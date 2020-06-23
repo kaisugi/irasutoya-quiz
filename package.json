@@ -10,6 +10,7 @@
     "@zeit-ui/react": "^1.7.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-github-btn": "^1.2.0",
     "typescript": "^3.9.5"
   },
   "devDependencies": {
