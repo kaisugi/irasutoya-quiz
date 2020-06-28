@@ -38,7 +38,7 @@ export default function Choice (props: ChoiceProps) {
 
   return (
     <>
-      {isLoading ? <h3 style={{zIndex: 40, color: "blue", position: "absolute"}}>画像を読み込み中です...</h3> : null}
+      {isLoading ? <h3 style={{zIndex: 40, color: "blue", position: "absolute", paddingTop: 420}}>画像を読み込み中です...</h3> : null}
       <img 
         id="irasutoya" 
         src={`img/irasutoya/${data[props.correct]}`} 
