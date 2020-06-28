@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as ReactDOM from "react-dom";
 import { ZeitProvider, CssBaseline } from "@zeit-ui/react";
-import { Card, Spacer } from "@zeit-ui/react";
+import { Card, Spacer, Button } from "@zeit-ui/react";
 import GitHubButton from "react-github-btn";
 
 import Choice from "./components/choice";
@@ -14,6 +14,25 @@ const getRandomInt = (min: number, max: number) => {
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 };
+
+const getRandomChoice = (max: number, dame?: number[]) => {
+  let tmp = Math.floor(Math.random() * Math.floor(max));
+  while (dame?.includes(tmp)) {
+    tmp = Math.floor(Math.random() * Math.floor(max));
+  }
+  return tmp;
+};
+
+function shuffle<T> (arr: T[]): T[] {
+  var j, x, i;
+  for (i = arr.length - 1; i > 0; i--) {
+    j = Math.floor(Math.random() * (i + 1));
+    x = arr[i];
+    arr[i] = arr[j];
+    arr[j] = x;
+  }
+  return arr;
+}
 
 const rotate = (x: number, y: number, theta: number): [number, number] => {
   const nx = x * Math.cos(theta) - y * Math.sin(theta);
@@ -47,6 +66,12 @@ const generatePoints = () => {
 
 const App = () => {
   const initialData = generatePoints();
+  const initialCorrect = getRandomChoice(496);
+  const initialWrong1 = getRandomChoice(496, [initialCorrect]);
+  const initialWrong2 = getRandomChoice(496, [initialCorrect, initialWrong1]);
+  const initialWrong3 = getRandomChoice(496, [initialCorrect, initialWrong1, initialWrong2]);
+  const shuffledArray = shuffle([initialWrong1, initialWrong2, initialWrong3, initialCorrect]);
+
 
   const fromPointsToSvg = (data: Zahyo[][]) => {
     const svgs = [];
@@ -57,25 +82,17 @@ const App = () => {
       for (const point of data[i]) {
         text += `${point[0]},`;
         text += `${point[1]} `;
-        
-        if (i === nearestIndex) {
-          svgs.push(
-            <circle cx={point[0]} cy={point[1]} r="2" fill="red" />
-          );
-        } else {
-          svgs.push(
-            <circle cx={point[0]} cy={point[1]} r="2" fill="black" />
-          );
-        }
       }
 
-      svgs.push(
-        <polygon fill="brown" points={text} />
-      );
-
-      svgs.push(
-        <circle cx={86} cy={-53} r="2" fill="black" />
-      );
+      if (i === nearestIndex) {
+        svgs.push(
+          <polygon fill="brown" points={text} stroke="red" strokeWidth="2" />
+        );
+      } else {
+        svgs.unshift(
+          <polygon fill="brown" points={text} stroke="black" strokeWidth="2" />
+        );
+      }
     }
   
     return svgs;
@@ -84,6 +101,14 @@ const App = () => {
   const [pointData, setPointData] = useState(initialData);
   const [svg, setSvg] = useState(fromPointsToSvg(initialData));
   const [nearestIndex, setNearestIndex] = useState<number | undefined>(undefined);
+
+  const [correct, setCorrect] = useState(initialCorrect);
+  const [wrong1, setWrong1] = useState(initialWrong1);
+  const [wrong2, setWrong2] = useState(initialWrong2);
+  const [wrong3, setWrong3] = useState(initialWrong3);
+  const [choices, setChoices] = useState(shuffledArray);
+
+  const [isSelected, setIsSelected] = useState(false);
 
   const handleClick = (e: React.MouseEvent<SVGElement>) => {
     const rect = document.getElementById("irasutoya")?.getBoundingClientRect();
@@ -123,6 +148,10 @@ const App = () => {
   useEffect(() => {
     setSvg(fromPointsToSvg(pointData));
 
+    if (nearestIndex) {
+      setIsSelected(true);
+    }
+
   }, [nearestIndex]);
 
   return (
@@ -144,8 +173,19 @@ const App = () => {
         >
           {svg}
         </svg>
-        <Choice/>
+        <Choice
+          correct={correct}
+          wrong1={wrong1}
+          wrong2={wrong2}
+          wrong3={wrong3}
+          choice1={choices[0]}
+          choice2={choices[1]}
+          choice3={choices[2]}
+          choice4={choices[3]}
+        />
       </div>
+      <Spacer y={1} />
+      {isSelected ? <Button type="error" ghost>選択した枝を削除</Button> : null}
     </div>
   );
 };
