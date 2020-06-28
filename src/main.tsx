@@ -86,7 +86,7 @@ const App = () => {
   const [score, setScore] = useState(0);
   const [plusPoint, setPlusPoint] = useState(100);
 
-  const fromPointsToSvg = (data: Zahyo[][]) => {
+  const fromPointsToSvg = (data: Zahyo[][], initialize: boolean) => {
     const svgs = [];
   
     for (let i=0;i<BRANCH_NUM;++i) {
@@ -97,23 +97,29 @@ const App = () => {
         text += `${point[1]} `;
       }
 
-      if (eliminated.includes(i)) {
-        continue;
-      } else if (i === nearestIndex) {
-        svgs.push(
-          <polygon fill="brown" points={text} stroke="red" strokeWidth="2" />
-        );
-      } else {
+      if (initialize) {
         svgs.unshift(
           <polygon fill="brown" points={text} stroke="black" strokeWidth="2" />
         );
+      } else {
+        if (eliminated.includes(i)) {
+          continue;
+        } else if (i === nearestIndex) {
+          svgs.push(
+            <polygon fill="brown" points={text} stroke="red" strokeWidth="2" />
+          );
+        } else {
+          svgs.unshift(
+            <polygon fill="brown" points={text} stroke="black" strokeWidth="2" />
+          );
+        }
       }
     }
   
     return svgs;
   };
 
-  const [svg, setSvg] = useState(fromPointsToSvg(initialData));
+  const [svg, setSvg] = useState(fromPointsToSvg(initialData, true));
 
 
 
@@ -158,7 +164,7 @@ const App = () => {
       const tmp = eliminated;
       tmp.push(nearestIndex);
       setEliminated(tmp);
-      setSvg(fromPointsToSvg(pointData));
+      setSvg(fromPointsToSvg(pointData, false));
       setNearestIndex(undefined);
       setIsSelected(false);
     }
@@ -183,7 +189,7 @@ const App = () => {
     setNearestIndex(undefined);
     setIsSelected(false);
 
-    setSvg(fromPointsToSvg(newData));
+    setSvg(fromPointsToSvg(newData, true));
 
     if (isCorrect) {
       setScore(score + plusPoint);
@@ -196,7 +202,7 @@ const App = () => {
 
 
   useEffect(() => {
-    setSvg(fromPointsToSvg(pointData));
+    setSvg(fromPointsToSvg(pointData, false));
 
     if (nearestIndex) {
       setIsSelected(true);
