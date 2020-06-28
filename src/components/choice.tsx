@@ -38,6 +38,7 @@ export default function Choice (props: ChoiceProps) {
 
   return (
     <>
+      {isLoading ? <h3 style={{zIndex: 40, color: "blue", position: "absolute"}}>画像を読み込み中です...</h3> : null}
       <img 
         id="irasutoya" 
         src={`img/irasutoya/${data[props.correct]}`} 
@@ -52,7 +53,6 @@ export default function Choice (props: ChoiceProps) {
         <Button onClick={() => openHandler(props.correct, props.choice2)}>{excludeExtension(data[props.choice2])}</Button>
         <Button onClick={() => openHandler(props.correct, props.choice3)}>{excludeExtension(data[props.choice3])}</Button>
         <Button onClick={() => openHandler(props.correct, props.choice4)}>{excludeExtension(data[props.choice4])}</Button>
-        {isLoading ? <p>画像を読み込み中です...</p> : null}
       </ButtonGroup>
       <Modal open={correctState} disableBackdropClick={true}>
         <Modal.Title>正解！</Modal.Title>
