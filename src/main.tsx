@@ -215,7 +215,7 @@ const App = () => {
           <h2>いらすとやクイズ</h2>
           <p>枝で隠れた画像のタイトルを当てよう！</p>
         </Card>
-        <Spacer x={1} />
+        <Spacer x={1.5} />
         <Card width="200px" type='secondary'>
           <h3>{score} 点</h3>
           <br />

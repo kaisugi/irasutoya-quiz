@@ -22,6 +22,7 @@ type ChoiceProps = {
 export default function Choice (props: ChoiceProps) {
   const [correctState, setCorrectState] = useState(false);
   const [incorrectState, setIncorrectState] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const openHandler = (correct: number, choice: number) => {
     if (correct === choice) setCorrectState(true);
@@ -31,18 +32,27 @@ export default function Choice (props: ChoiceProps) {
   const closeHandler = (isCorrect: boolean) => {
     setCorrectState(false);
     setIncorrectState(false);
+    setIsLoading(true);
     props.onNewGame(isCorrect);
   };
 
   return (
     <>
-      <img id="irasutoya" src={`img/irasutoya/${data[props.correct]}`} height="400" width="400"></img>
+      <img 
+        id="irasutoya" 
+        src={`img/irasutoya/${data[props.correct]}`} 
+        height="400" 
+        width="400"
+        onLoad={() => setIsLoading(false)}
+      >
+      </img>
       <Spacer y={3} />
       <ButtonGroup size="medium" vertical>
         <Button onClick={() => openHandler(props.correct, props.choice1)}>{excludeExtension(data[props.choice1])}</Button>
         <Button onClick={() => openHandler(props.correct, props.choice2)}>{excludeExtension(data[props.choice2])}</Button>
         <Button onClick={() => openHandler(props.correct, props.choice3)}>{excludeExtension(data[props.choice3])}</Button>
         <Button onClick={() => openHandler(props.correct, props.choice4)}>{excludeExtension(data[props.choice4])}</Button>
+        {isLoading ? <p>画像を読み込み中です...</p> : null}
       </ButtonGroup>
       <Modal open={correctState} disableBackdropClick={true}>
         <Modal.Title>正解！</Modal.Title>
