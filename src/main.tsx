@@ -1,19 +1,13 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import * as ReactDOM from "react-dom";
-import { ZeitProvider, CssBaseline, Display } from "@zeit-ui/react";
-import { Spacer, Button, ButtonGroup } from "@zeit-ui/react";
+import { ZeitProvider, CssBaseline } from "@zeit-ui/react";
+import { Card, Spacer } from "@zeit-ui/react";
 import GitHubButton from "react-github-btn";
 
-import data from "./data.json";
+import Choice from "./components/choice";
 import branchData from "./plate.json";
 
-const getRandomChoice = (max: number, dame?: number[]) => {
-  let tmp = Math.floor(Math.random() * Math.floor(max));
-  while (dame?.includes(tmp)) {
-    tmp = Math.floor(Math.random() * Math.floor(max));
-  }
-  return tmp;
-};
+const BRANCH_NUM = 150;
 
 const getRandomInt = (min: number, max: number) => {
   min = Math.ceil(min);
@@ -21,69 +15,136 @@ const getRandomInt = (min: number, max: number) => {
   return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 };
 
-const rotate = (x: number, y: number, theta: number) => {
+const rotate = (x: number, y: number, theta: number): [number, number] => {
   const nx = x * Math.cos(theta) - y * Math.sin(theta);
   const ny = x * Math.sin(theta) + y * Math.cos(theta);
   return [Math.floor(nx), Math.floor(ny)];
 };
 
-type Zahyo = {
-  x: number, 
-  y: number
-}
+type Zahyo = [number, number];
 
-const fromPointsToString = (points: Zahyo[]) => {
-  let res = "";
-  const cx = getRandomInt(-15, 15);
-  const cy = getRandomInt(-15, 15);
-  const theta = getRandomInt(-180, 180);
-  for (const point of points) {
-    let x, y;
-    [x, y] = rotate(point["x"] / 2 + cx, point["y"] / 2 + cy, theta);
-    res += `${x},`;
-    res += `${y} `;
+const generatePoints = () => {
+  const ans: Zahyo[][] = [];
+
+  for (let i=0;i<BRANCH_NUM;++i) {
+    const tmp: Zahyo[] = [];
+    const points = branchData["branches"][i%5]["contour"];
+
+    const cx = getRandomInt(-100, 200);
+    const cy = getRandomInt(-100, 200);
+    const theta = getRandomInt(-45, 45);
+    for (const point of points) {
+      let x, y: number;
+      [x, y] = rotate(point["x"] + cx, point["y"] + cy, theta);
+      tmp.push([x, y]);
+    }
+
+    ans.push(tmp);
   }
-
-  return res;
+  return ans;
 };
 
+
 const App = () => {
-  const correct = getRandomChoice(496);
-  const wrong1 = getRandomChoice(496, [correct]);
-  const wrong2 = getRandomChoice(496, [correct, wrong1]);
-  const wrong3 = getRandomChoice(496, [correct, wrong1, wrong2]);
+  const initialData = generatePoints();
 
-  const svgs: React.ReactNode[] = [];
-  for (let i=0;i<120;++i) {
-    const text = fromPointsToString(branchData["branches"][i%5]["contour"]);
-    svgs.push(
-      <polygon fill="brown" stroke="black" stroke-width="3" points={text} />
-    );
-  }
+  const fromPointsToSvg = (data: Zahyo[][]) => {
+    const svgs = [];
+  
+    for (let i=0;i<BRANCH_NUM;++i) {
+      let text = "";
+      
+      for (const point of data[i]) {
+        text += `${point[0]},`;
+        text += `${point[1]} `;
+        
+        if (i === nearestIndex) {
+          svgs.push(
+            <circle cx={point[0]} cy={point[1]} r="2" fill="red" />
+          );
+        } else {
+          svgs.push(
+            <circle cx={point[0]} cy={point[1]} r="2" fill="black" />
+          );
+        }
+      }
 
-  // TODO: Buttonの部分は別のComponentに分ける
+      svgs.push(
+        <polygon fill="brown" points={text} />
+      );
+
+      svgs.push(
+        <circle cx={86} cy={-53} r="2" fill="black" />
+      );
+    }
+  
+    return svgs;
+  };
+
+  const [pointData, setPointData] = useState(initialData);
+  const [svg, setSvg] = useState(fromPointsToSvg(initialData));
+  const [nearestIndex, setNearestIndex] = useState<number | undefined>(undefined);
+
+  const handleClick = (e: React.MouseEvent<SVGElement>) => {
+    const rect = document.getElementById("irasutoya")?.getBoundingClientRect();
+
+    const tmpX = e.clientX;
+    const tmpY = e.clientY;
+
+    if (rect) {
+      const zahyoX = Math.floor(tmpX - rect.left);
+      const zahyoY = Math.floor(tmpY - rect.top);
+
+      let min = 10000;
+      let min_index = 0;
+
+      for (let i=0;i<BRANCH_NUM;++i) { 
+        const points = pointData[i];
+        for (const point of points) {
+          if (zahyoX < 0) continue;
+          if (zahyoX > 400) continue;
+          if (zahyoY < 0) continue;
+          if (zahyoY > 400) continue;
+          const tmp = Math.abs(zahyoX - point[0]) + Math.abs(zahyoY - point[1]);
+          
+          if (tmp < min) {
+
+            min = tmp;
+            min_index = i;
+          }
+        }
+      }
+
+      setNearestIndex(min_index);
+    }
+  };
+
+
+  useEffect(() => {
+    setSvg(fromPointsToSvg(pointData));
+
+  }, [nearestIndex]);
+
   return (
     <div>
-      <Spacer y={0.5} />
-      <GitHubButton href="https://github.com/7ma7X/irasutoya-quiz" data-size="large" aria-label="Star 7ma7X/irasutoya-quiz on GitHub">Star</GitHubButton>
-      <h2>いらすとやクイズ</h2>
-      <p>枝で隠れた画像のタイトルを当てよう！</p>
+      <Spacer y={1} />
+      <Card width="400px" className="titlecard">
+        <GitHubButton href="https://github.com/7ma7X/irasutoya-quiz" data-size="large" aria-label="Star 7ma7X/irasutoya-quiz on GitHub">Star</GitHubButton>
+        <h2>いらすとやクイズ</h2>
+        <p>枝で隠れた画像のタイトルを当てよう！</p>
+      </Card>
+      <Spacer y={1} />
       <div style={{display: "flex"}}>
         <svg 
           className="palette"
           width="400" 
           height="400" 
-          viewBox="-100, -100, 300, 300" >
-          {svgs}
+          viewBox="0, 0, 400, 400" 
+          onClick={handleClick}
+        >
+          {svg}
         </svg>
-        <img className="irasutoya" src={`img/irasutoya/${data[correct]}`} height="400" width="400"></img>
-        <Spacer y={3} />
-        <ButtonGroup size="medium" vertical>
-          <Button>{data[correct]}</Button>
-          <Button>{data[wrong1]}</Button>
-          <Button>{data[wrong2]}</Button>
-          <Button>{data[wrong3]}</Button>
-        </ButtonGroup>
+        <Choice/>
       </div>
     </div>
   );
