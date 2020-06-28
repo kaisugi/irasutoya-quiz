@@ -65,7 +65,7 @@ const App = () => {
   return (
     <div>
       <Spacer y={0.5} />
-      <GitHubButton href="https://github.com/7ma7X/irasutoyaquiz" data-size="large" aria-label="Star 7ma7X/irasutoyaquiz on GitHub">Star</GitHubButton>
+      <GitHubButton href="https://github.com/7ma7X/irasutoya-quiz" data-size="large" aria-label="Star 7ma7X/irasutoya-quiz on GitHub">Star</GitHubButton>
       <h2>いらすとやクイズ</h2>
       <p>枝で隠れた画像のタイトルを当てよう！</p>
       <div style={{display: "flex"}}>

@@ -1,15 +1,3 @@
-# react-ts-eslint-zeitui-template
+# irasutoya-quiz
 
-Feature
-
-- React + TypeScript
-- ESLint
-- zeit-ui/react https://react.zeit-ui.co/
-
-```sh
-# serve as http://localhost:8000
-yarn watch
-
-# build
-yarn build
-```
+枝で隠れた「いらすとや」の画像のタイトルを当てるゲームです。
