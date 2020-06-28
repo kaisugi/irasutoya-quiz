@@ -45,7 +45,7 @@ type Zahyo = [number, number];
 const generatePoints = () => {
   const ans: Zahyo[][] = [];
 
-  for (let i=0;i<BRANCH_NUM;++i) {
+  for (let i=0;i<BRANCH_NUM;++i) {    
     const tmp: Zahyo[] = [];
     const points = branchData["branches"][i%5]["contour"];
 
@@ -72,6 +72,19 @@ const App = () => {
   const initialWrong3 = getRandomChoice(496, [initialCorrect, initialWrong1, initialWrong2]);
   const shuffledArray = shuffle([initialWrong1, initialWrong2, initialWrong3, initialCorrect]);
 
+  const [eliminated, setEliminated] = useState<number[]>([]);
+  const [nearestIndex, setNearestIndex] = useState<number | undefined>(undefined);
+  const [isSelected, setIsSelected] = useState(false);
+
+  const [pointData, setPointData] = useState(initialData);
+  const [correct, setCorrect] = useState(initialCorrect);
+  const [wrong1, setWrong1] = useState(initialWrong1);
+  const [wrong2, setWrong2] = useState(initialWrong2);
+  const [wrong3, setWrong3] = useState(initialWrong3);
+  const [choices, setChoices] = useState(shuffledArray);
+
+  const [score, setScore] = useState(0);
+  const [plusPoint, setPlusPoint] = useState(100);
 
   const fromPointsToSvg = (data: Zahyo[][]) => {
     const svgs = [];
@@ -84,7 +97,9 @@ const App = () => {
         text += `${point[1]} `;
       }
 
-      if (i === nearestIndex) {
+      if (eliminated.includes(i)) {
+        continue;
+      } else if (i === nearestIndex) {
         svgs.push(
           <polygon fill="brown" points={text} stroke="red" strokeWidth="2" />
         );
@@ -98,17 +113,9 @@ const App = () => {
     return svgs;
   };
 
-  const [pointData, setPointData] = useState(initialData);
   const [svg, setSvg] = useState(fromPointsToSvg(initialData));
-  const [nearestIndex, setNearestIndex] = useState<number | undefined>(undefined);
 
-  const [correct, setCorrect] = useState(initialCorrect);
-  const [wrong1, setWrong1] = useState(initialWrong1);
-  const [wrong2, setWrong2] = useState(initialWrong2);
-  const [wrong3, setWrong3] = useState(initialWrong3);
-  const [choices, setChoices] = useState(shuffledArray);
 
-  const [isSelected, setIsSelected] = useState(false);
 
   const handleClick = (e: React.MouseEvent<SVGElement>) => {
     const rect = document.getElementById("irasutoya")?.getBoundingClientRect();
@@ -124,6 +131,8 @@ const App = () => {
       let min_index = 0;
 
       for (let i=0;i<BRANCH_NUM;++i) { 
+        if (eliminated.includes(i)) continue;
+
         const points = pointData[i];
         for (const point of points) {
           if (zahyoX < 0) continue;
@@ -144,6 +153,47 @@ const App = () => {
     }
   };
 
+  const handleDeleteButtonClick = () => {
+    if (nearestIndex) {
+      const tmp = eliminated;
+      tmp.push(nearestIndex);
+      setEliminated(tmp);
+      setSvg(fromPointsToSvg(pointData));
+      setNearestIndex(undefined);
+      setIsSelected(false);
+    }
+  };
+
+  const startNewGame = (isCorrect: boolean) => {
+    const newData = generatePoints();
+    setPointData(newData);
+    const newCorrect = getRandomChoice(496);
+    const newWrong1 = getRandomChoice(496, [newCorrect]);
+    const newWrong2 = getRandomChoice(496, [newCorrect, newWrong1]);
+    const newWrong3 = getRandomChoice(496, [newCorrect, newWrong1, newWrong2]);
+    const shuffledArray = shuffle([newWrong1, newWrong2, newWrong3, newCorrect]);
+
+    setCorrect(newCorrect);
+    setWrong1(newWrong1);
+    setWrong2(newWrong2);
+    setWrong3(newWrong3);
+    setChoices(shuffledArray);
+
+    setEliminated([]);
+    setNearestIndex(undefined);
+    setIsSelected(false);
+
+    setSvg(fromPointsToSvg(newData));
+
+    if (isCorrect) {
+      setScore(score + plusPoint);
+      setPlusPoint(100);
+    } else {
+      setScore(score - 200);
+      setPlusPoint(100);
+    }
+  };
+
 
   useEffect(() => {
     setSvg(fromPointsToSvg(pointData));
@@ -152,16 +202,27 @@ const App = () => {
       setIsSelected(true);
     }
 
+    setPlusPoint(Math.max(0, 100 - eliminated.length * 10));
+
   }, [nearestIndex]);
 
   return (
     <div>
       <Spacer y={1} />
-      <Card width="400px" className="titlecard">
-        <GitHubButton href="https://github.com/7ma7X/irasutoya-quiz" data-size="large" aria-label="Star 7ma7X/irasutoya-quiz on GitHub">Star</GitHubButton>
-        <h2>いらすとやクイズ</h2>
-        <p>枝で隠れた画像のタイトルを当てよう！</p>
-      </Card>
+      <div style={{display: "flex"}}>
+        <Card width="400px" className="titlecard">
+          <GitHubButton href="https://github.com/7ma7X/irasutoya-quiz" data-size="large" aria-label="Star 7ma7X/irasutoya-quiz on GitHub">Star</GitHubButton>
+          <h2>いらすとやクイズ</h2>
+          <p>枝で隠れた画像のタイトルを当てよう！</p>
+        </Card>
+        <Spacer x={1} />
+        <Card width="200px" type='secondary'>
+          <h3>{score} 点</h3>
+          <br />
+          <p>正解すると +{plusPoint} 点<br />
+          間違えると -200 点</p>
+        </Card>
+      </div>
       <Spacer y={1} />
       <div style={{display: "flex"}}>
         <svg 
@@ -182,10 +243,11 @@ const App = () => {
           choice2={choices[1]}
           choice3={choices[2]}
           choice4={choices[3]}
+          onNewGame={(isCorrect: boolean) => startNewGame(isCorrect)}
         />
       </div>
       <Spacer y={1} />
-      {isSelected ? <Button type="error" ghost>選択した枝を削除</Button> : null}
+      {isSelected ? <Button type="error" ghost onClick={() => handleDeleteButtonClick()}>選択した枝を削除</Button> : null}
     </div>
   );
 };
