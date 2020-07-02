@@ -5,40 +5,11 @@ import { Card, Spacer, Button } from "@zeit-ui/react";
 import GitHubButton from "react-github-btn";
 
 import Choice from "./components/choice";
+import { getRandomInt, getRandomChoice, shuffle, rotate } from "./components/util";
 import branchData from "./plate.json";
 
+
 const BRANCH_NUM = 150;
-
-const getRandomInt = (min: number, max: number) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
-};
-
-const getRandomChoice = (max: number, dame?: number[]) => {
-  let tmp = Math.floor(Math.random() * Math.floor(max));
-  while (dame?.includes(tmp)) {
-    tmp = Math.floor(Math.random() * Math.floor(max));
-  }
-  return tmp;
-};
-
-function shuffle<T> (arr: T[]): T[] {
-  var j, x, i;
-  for (i = arr.length - 1; i > 0; i--) {
-    j = Math.floor(Math.random() * (i + 1));
-    x = arr[i];
-    arr[i] = arr[j];
-    arr[j] = x;
-  }
-  return arr;
-}
-
-const rotate = (x: number, y: number, theta: number): [number, number] => {
-  const nx = x * Math.cos(theta) - y * Math.sin(theta);
-  const ny = x * Math.sin(theta) + y * Math.cos(theta);
-  return [Math.floor(nx), Math.floor(ny)];
-};
 
 type Zahyo = [number, number];
 
