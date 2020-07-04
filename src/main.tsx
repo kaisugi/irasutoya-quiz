@@ -130,7 +130,13 @@ const App = () => {
     }
   };
 
-  const handleDeleteButtonClick = () => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.key === "d" || e.key === "D" || e.key === "Backspace" || e.key === "Delete") {
+      deleteBranch();
+    }
+  };
+
+  const deleteBranch = () => {
     if (nearestIndex) {
       const tmp = eliminated;
       tmp.push(nearestIndex);
@@ -184,7 +190,7 @@ const App = () => {
   }, [nearestIndex]);
 
   return (
-    <div>
+    <div onKeyDown={handleKeyDown} tabIndex={0}>
       <Spacer y={1} />
       <div style={{display: "flex"}}>
         <Card width="400px" className="titlecard">
@@ -225,7 +231,7 @@ const App = () => {
         />
       </div>
       <Spacer y={1} />
-      {isSelected ? <Button type="error" ghost onClick={() => handleDeleteButtonClick()}>選択した枝を削除</Button> : null}
+      {isSelected ? <Button type="error" ghost onClick={() => deleteBranch()}>選択した枝を削除（ D キーでも OK ）</Button> : null}
     </div>
   );
 };
