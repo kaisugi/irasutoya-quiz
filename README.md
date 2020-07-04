@@ -5,7 +5,7 @@
 
 **url: https://irasutoya-quiz.netlify.app/**
 
-<img src="https://user-images.githubusercontent.com/36184621/86512533-118e2700-be3e-11ea-8fe1-b3c2bdf84eb9.gif" width="400px">
+<img src="https://user-images.githubusercontent.com/36184621/86512533-118e2700-be3e-11ea-8fe1-b3c2bdf84eb9.gif" width="500px">
 
 
 ## ゲームの説明
