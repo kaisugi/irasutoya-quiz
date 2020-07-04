@@ -190,11 +190,12 @@ const App = () => {
         <Card width="400px" className="titlecard">
           <GitHubButton href="https://github.com/7ma7X/irasutoya-quiz" data-size="large" aria-label="Star 7ma7X/irasutoya-quiz on GitHub">Star</GitHubButton>
           <h2>いらすとやクイズ</h2>
-          <p>枝で隠れた画像のタイトルを当てよう！</p>
+          <p>枝で隠れた画像のタイトルを当てよう！<br />
+          削除する枝が少ない方が高得点を獲得できるぞ！</p>
         </Card>
         <Spacer x={1.5} />
         <Card width="200px" type='secondary'>
-          <h3>{score} 点</h3>
+          <h2>{score} 点</h2>
           <br />
           <p>正解すると +{plusPoint} 点<br />
           間違えると -200 点</p>
