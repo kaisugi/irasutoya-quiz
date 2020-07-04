@@ -197,7 +197,8 @@ const App = () => {
           <GitHubButton href="https://github.com/7ma7X/irasutoya-quiz" data-size="large" aria-label="Star 7ma7X/irasutoya-quiz on GitHub">Star</GitHubButton>
           <h2>いらすとやクイズ</h2>
           <p>枝で隠れた画像のタイトルを当てよう！<br />
-          削除する枝が少ない方が高得点を獲得できるぞ！</p>
+          削除する枝が少ない方が高得点を獲得できるぞ！<br />
+          （なるべく枝の輪郭をクリックしてください）</p>
         </Card>
         <Spacer x={1.5} />
         <Card width="200px" type='secondary'>
