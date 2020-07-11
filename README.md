@@ -20,3 +20,15 @@ React: https://ja.reactjs.org/
 TypeScript: https://www.typescriptlang.org/  
 ZEIT UI: https://react.zeit-ui.co/  
 Netlify: https://www.netlify.com/
+
+## ローカル環境で動かしたい場合
+
+[Yarn](https://classic.yarnpkg.com/ja/docs/install) が必要です。
+
+```sh
+git clone https://github.com/7ma7X/irasutoya-quiz
+cd irasutoya-quiz
+yarn
+yarn watch
+# and open http://localhost:8000
+```
